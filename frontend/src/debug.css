@@ -1,0 +1,310 @@
+/* Lora + базовый цвет */
+:root {
+  --ink: rgb(79, 82, 96);
+  --muted: rgba(79, 82, 96, 0.7);
+  --card: rgba(255, 255, 255, 0.78);
+  --line: rgba(0, 0, 0, 0.08);
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+html, body {
+  font-family: "Lora", serif;
+  color: var(--ink);
+}
+
+.g2-root * {
+  font-family: "Lora", serif;
+}
+
+/* -------------------------------------------------------
+   ВАЖНО: чтобы правая область не "выезжала"
+   ------------------------------------------------------- */
+.g2-card-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.g2-chart-col {
+  flex: 1 1 auto;
+  min-width: 0; /* позволяет сжиматься, не толкая правую */
+}
+
+.g2-booking-col {
+  flex: 0 0 560px; /* фиксируем ширину справа */
+  width: 560px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 620px;
+}
+
+/* обертка справа фиксирует высоту/ширину + overlay элементы */
+.dbg-booking-wrap {
+  position: relative;
+  width: 560px;
+  min-height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 10px;
+  box-sizing: border-box;
+}
+
+/* debug-bar overlay (не влияет на layout) */
+.dbg-stepbar {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 9999;
+}
+
+.dbg-stepbar button {
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+/* Блок услуги/даты внутри правого контейнера (внутри серой карточки по позиционированию) */
+.dbg-booking-head {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 118px;            /* подогнано под “шапку” серой карточки */
+  width: 520px;
+  text-align: center;
+  z-index: 5;
+  pointer-events: none;
+  color: #fff;
+}
+
+.dbg-booking-title {
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.95;
+}
+
+.dbg-booking-service {
+  margin-top: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.2;
+  text-transform: none;
+  opacity: 0.95;
+  white-space: pre-line;
+}
+
+.dbg-booking-datetime {
+  margin-top: 8px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.2;
+  opacity: 0.9;
+  text-transform: lowercase;
+}
+
+/* -------------------------------------------------------
+   ЛЕВО: расписание (мягче и “живее”, но не 1-в-1)
+   ------------------------------------------------------- */
+.sch-root {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+
+.sch-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.sch-topbar .sch-title {
+  font-weight: 700;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.sch-topbar button {
+  border: 1px solid rgba(0,0,0,0.14);
+  background: #fff;
+  border-radius: 12px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.sch-date {
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.sch-table-wrap {
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.65);
+  max-width: 100%;
+}
+
+.sch-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 920px; /* таблица прокручивается внутри, НЕ толкает правую */
+}
+
+.sch-table th,
+.sch-table td {
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid rgba(0,0,0,0.05);
+  padding: 10px;
+  vertical-align: middle;
+}
+
+.sch-table th {
+  position: sticky;
+  top: 0;
+  background: #fbfbfd;
+  z-index: 2;
+  text-align: left;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.sch-colhead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sch-colname {
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: pre-line;
+}
+
+.sch-cap {
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.sch-rowtime {
+  font-weight: 700;
+  white-space: nowrap;
+  width: 90px;
+  background: rgba(0,0,0,0.03);
+}
+
+.sch-section {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(0,0,0,0.06);
+}
+
+/* карточка слота */
+.sch-cellbtn {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.sch-cellbtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+}
+
+.sch-cellbtn.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.sch-cellbtn.is-selected {
+  outline: 2px solid rgba(113,63,227,0.55);
+  border-color: rgba(113,63,227,0.55);
+}
+
+.sch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.sch-timebig {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.sch-cellmeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* hover-preview fixed (не режется overflow) */
+.sch-preview {
+  position: fixed;
+  z-index: 999999;
+  width: 280px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.16);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sch-preview img {
+  width: 100%;
+  height: 155px;
+  object-fit: cover;
+  display: block;
+}
+
+.sch-preview-body {
+  padding: 10px 12px 12px;
+}
+
+.sch-preview-title {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.sch-preview-sub {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
