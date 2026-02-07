@@ -26,4 +26,4 @@ frontend/.env
 .DS_Store
 .vscode/
 
-backend/ecosystem.config.cjs
+backend/ecosystem.config.cjsbackend/ecosystem.config.cjs
