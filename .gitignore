@@ -1,8 +1,29 @@
-# Node modules and build
+# Node.js dependencies
 backend/node_modules/
 frontend/node_modules/
+node_modules/
+
+# Output/build folders
 backend/dist/
 frontend/dist/
+dist/
+build/
+
+# Logs
 *.log
+
+# Env/configs
 *.env
 *.env.*
+backend/.env
+frontend/.env
+
+# Archives
+*.tar.gz
+*.zip
+
+# IDE/editor junk
+.DS_Store
+.vscode/
+
+backend/ecosystem.config.cjs
