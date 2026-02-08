@@ -40,10 +40,18 @@ const p = (path: string) => `${BASE}${path.replace(/^\//, "")}`;
 const V3_BG_PHOTO_URL = p("img/schedule-bg.jpg");
 
 // ===== API =====
-const API_BASE = "https://profit-group.online/aok5/api";
-const CLUB_ID = "63fbc47b-d691-11ec-840b-00155d0a6605";
+const API_BASE = (import.meta as any).env?.VITE_API_BASE ?? "/api";
+const CLUB_ID = (import.meta as any).env?.VITE_CLUB_ID ?? "63fbc47b-d691-11ec-840b-00155d0a6605";
+const apiUrl = (path: string) => `${API_BASE.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 
-type EliteGridCell = { free: number; price: number | null; service_id?: string };
+type EliteGridCell = {
+  free: number;
+  price: number | null;
+  service_id?: string;
+  room_id?: string;
+  total_count?: number;
+  reason?: string | null;
+};
 type EliteAvailabilityGridResponse = {
   result: boolean;
   club_id: string;
@@ -52,7 +60,12 @@ type EliteAvailabilityGridResponse = {
   grid: Record<string, EliteGridCell>;
 };
 
-type ComfortGridCell = { free_count: number; total_count: number; min_price: number | null };
+type ComfortGridCell = {
+  free_count: number;
+  total_count: number;
+  busy_count?: number;
+  min_price: number | null;
+};
 type ComfortAvailabilityGridResponse = {
   result: boolean;
   club_id: string;
@@ -61,13 +74,9 @@ type ComfortAvailabilityGridResponse = {
   grid: Record<string, ComfortGridCell>;
 };
 
-// ВАЖНО: верхний заголовок КОМФОРТ+ЭЛИТ всегда 8+1 (статично, не из API)
-const COMFORT_TOTAL_STATIC = 8;
-const ELITE_TOTAL_STATIC = 1;
-
 const BASE_SERVICES: Service[] = [
-  { id: "comfort", title: "Комфорт", total: COMFORT_TOTAL_STATIC },
-  { id: "elite", title: "Элит", total: ELITE_TOTAL_STATIC },
+  { id: "comfort", title: "Комфорт", total: 0 },
+  { id: "elite", title: "Элит", total: 0 },
   { id: "lux", title: "Люкс", total: 18 },
   { id: "premium", title: "Премиум", total: 6 },
   { id: "sauna", title: "Сауна", total: 4 },
@@ -77,7 +86,7 @@ const V3_COLUMNS: V3Column[] = [
   {
     key: "comfort_elite",
     title: "КОМФОРТ \n + \n ЭЛИТ",
-    totalLabel: "8+1", // статично
+    totalLabel: "—",
     svcIds: ["comfort", "elite"],
     img: p("rooms/svc-1.jpg"),
   },
@@ -215,7 +224,7 @@ export default function LeftScheduleV4({
       try {
         setEliteGridDate(dateIso);
         const url =
-          `${API_BASE}/availability_grid_elite` +
+          `${apiUrl("/availability_grid_elite")}` +
           `?club_id=${encodeURIComponent(CLUB_ID)}` +
           `&date=${encodeURIComponent(dateIso)}`;
         const r = await fetch(url, { method: "GET" });
@@ -243,7 +252,7 @@ export default function LeftScheduleV4({
       try {
         setComfortGridDate(dateIso);
         const url =
-          `${API_BASE}/availability_grid_comfort` +
+          `${apiUrl("/availability_grid_comfort")}` +
           `?club_id=${encodeURIComponent(CLUB_ID)}` +
           `&date=${encodeURIComponent(dateIso)}`;
         const r = await fetch(url, { method: "GET" });
@@ -263,8 +272,25 @@ export default function LeftScheduleV4({
 
   const eliteFreeForStart = (start: string) => (eliteGridDate !== dateIso ? 0 : eliteGrid[start]?.free ?? 0);
   const elitePriceForStart = (start: string) => (eliteGridDate !== dateIso ? null : eliteGrid[start]?.price ?? null);
+  const eliteTotalCount = useMemo(() => {
+    if (eliteGridDate !== dateIso) return 0;
+    const cell = Object.values(eliteGrid)[0];
+    return cell?.total_count ?? 0;
+  }, [eliteGrid, eliteGridDate, dateIso]);
 
   const comfortFreeForStart = (start: string) => (comfortGridDate !== dateIso ? 0 : comfortGrid[start]?.free_count ?? 0);
+  const comfortTotalCount = useMemo(() => {
+    if (comfortGridDate !== dateIso) return 0;
+    const cell = Object.values(comfortGrid)[0];
+    return cell?.total_count ?? 0;
+  }, [comfortGrid, comfortGridDate, dateIso]);
+
+  const comfortEliteTotalLabel = useMemo(() => {
+    if (comfortTotalCount > 0 || eliteTotalCount > 0) {
+      return `${comfortTotalCount}+${eliteTotalCount}`;
+    }
+    return "—";
+  }, [comfortTotalCount, eliteTotalCount]);
 
   // 7 дней
   const weekDays = useMemo(() => {
@@ -386,7 +412,7 @@ export default function LeftScheduleV4({
                 serviceId: "comfort",
                 serviceName: "Комфорт",
                 free: comfortFree,
-                total: COMFORT_TOTAL_STATIC,
+                total: comfortTotalCount,
               };
               onSelect(s);
               onSlotClick?.(s);
@@ -400,7 +426,7 @@ export default function LeftScheduleV4({
                 serviceId: "elite",
                 serviceName: "Элит",
                 free: eliteFree,
-                total: ELITE_TOTAL_STATIC,
+                total: eliteTotalCount,
                 price: elitePrice,
               };
               onSelect(s);
@@ -589,11 +615,11 @@ export default function LeftScheduleV4({
 ))}
                     </div>
 
-                    {/* СТАТИЧНО 8+1, не кликается и не зависит от API */}
+                    {/* Totals from API grid (fallback to dash while loading) */}
                     <div className="xls-headcell__total v4-total-split" aria-label="Комфорт Элит (всего)">
-                      <span className="v4-split-num">{COMFORT_TOTAL_STATIC}</span>
+                      <span className="v4-split-num">{comfortTotalCount || "—"}</span>
                       <span className="v4-split-plus">+</span>
-                      <span className="v4-split-num">{ELITE_TOTAL_STATIC}</span>
+                      <span className="v4-split-num">{eliteTotalCount || "—"}</span>
                     </div>
                   </div>
                 );
@@ -641,7 +667,8 @@ export default function LeftScheduleV4({
             <img src={tip.col.img} alt="" />
             <div style={{ fontWeight: 900 }}>{tip.col.title}</div>
             <div className="ls-tip-sub">
-              {formatRu(tip.dateIso)} • {rangeLabel(tip.start)} • свободно: {tip.freeText} • всего: {tip.col.totalLabel}
+              {formatRu(tip.dateIso)} • {rangeLabel(tip.start)} • свободно: {tip.freeText} • всего:{" "}
+              {tip.col.key === "comfort_elite" ? comfortEliteTotalLabel : tip.col.totalLabel}
             </div>
           </div>,
           document.body
