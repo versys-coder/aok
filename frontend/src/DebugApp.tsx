@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
-import LeftSchedule, { Slot } from "./LeftSchedule";
-import DebugBookingFlow from "./DebugBookingFlow";
-import ModeSwitch from "./ModeSwitch";
+import type { Slot } from "./LeftSchedule";
 import ExtrasPanel from "./ExtrasPanel";
 import ExtrasCart from "./ExtrasCart";
-import { ROOMS } from "./rooms";
 import type { ExtraService } from "./services";
 import { EXTRA_SERVICES } from "./services";
 import { tariffSlotStartIso } from "../utils/date";
-import LeftScheduleV3 from "./LeftScheduleV3";
 import LeftScheduleV4 from "./LeftScheduleV4";
 import BookingModal from "./BookingModal";
 import V3Constructor from "./V3Constructor";
@@ -30,8 +26,6 @@ function todayIsoKazan(): string {
 }
 
 export default function DebugApp() {
-  const [mode, setMode] = useState<1 | 2 | 3 | 4>(4);
-
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [dateIso, setDateIso] = useState<string>(() => todayIsoKazan());
 
@@ -81,107 +75,31 @@ export default function DebugApp() {
           .filter(([, req]) => extras.every((e) => req.includes(e)))
           .map(([colKey]) => colKey);
 
-  // ===== старый режим 2 оставляем как был =====
-  const allowedRoomIds =
-    extras.length === 0
-      ? undefined
-      : ROOMS.filter((r) => extras.every((e) => r.extras.includes(e))).map((r) => r.id);
-
   const toggleExtra = (e: ExtraService) =>
     setExtras((prev) => (prev.includes(e) ? prev.filter((x) => x !== e) : [...prev, e]));
 
   return (
     <div style={{ padding: 12 }}>
-      <ModeSwitch value={mode} onChange={setMode} />
-
-      {mode === 1 ? (
-        <div className="dbg-shell">
-          <LeftSchedule dateIso={dateIso} onDateChange={setDateIso} selected={slot} onSelect={setSlot} />
-          <div className="dbg-right">
-            <DebugBookingFlow slot={slot!} />
-          </div>
-        </div>
-      ) : mode === 2 ? (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "260px minmax(0, 1fr) 420px",
-            gap: 24,
-            alignItems: "start",
-          }}
-        >
-          <ExtrasPanel
-            selected={extras}
-            onAdd={(e) => setExtras((prev) => (prev.includes(e) ? prev : [...prev, e]))}
+      <div className="v3-shell">
+        <div className="v3-center">
+          <LeftScheduleV4
+            dateIso={dateIso}
+            onDateChange={setDateIso}
+            selected={slot}
+            onSelect={(s) => setSlot(s as any)}
+            allowedServiceIds={allowedServiceIds}
+            filtersCount={extras.length}
+            onSlotClick={(s) => {
+              setSlot(s as any);
+              setBookingOpen(true);
+            }}
           />
 
-          <div>
-            <ExtrasCart
-              extras={extras}
-              onRemove={(e) => setExtras((prev) => prev.filter((x) => x !== e))}
-              onClear={() => setExtras([])}
-            />
-
-            <LeftSchedule
-              dateIso={dateIso}
-              onDateChange={setDateIso}
-              selected={slot}
-              onSelect={setSlot}
-              allowedServiceIds={allowedRoomIds}
-            />
-          </div>
-
-          <div className="dbg-right">
-            <DebugBookingFlow slot={slot!} />
-          </div>
+          <V3Constructor selected={extras} onToggle={toggleExtra} onClear={() => setExtras([])} />
         </div>
-      ) : mode === 3 ? (
-        <>
-          <div className="v3-shell">
-            <div className="v3-center">
-              <LeftScheduleV3
-                dateIso={dateIso}
-                onDateChange={setDateIso}
-                selected={slot}
-                onSelect={(s) => setSlot(s as any)}
-                allowedServiceIds={allowedServiceIds}
-                filtersCount={extras.length}
-                onSlotClick={(s) => {
-                  setSlot(s as any);
-                  setBookingOpen(true);
-                }}
-              />
+      </div>
 
-              <V3Constructor selected={extras} onToggle={toggleExtra} onClear={() => setExtras([])} />
-            </div>
-          </div>
-
-          <BookingModal open={bookingOpen} slot={slot as any} onClose={() => setBookingOpen(false)} />
-        </>
-      ) : (
-        <>
-          <div className="v3-shell">
-            <div className="v3-center">
-              <LeftScheduleV4
-                dateIso={dateIso}
-                onDateChange={setDateIso}
-                selected={slot}
-                onSelect={(s) => setSlot(s as any)}
-                allowedServiceIds={allowedServiceIds}
-                filtersCount={extras.length}
-                onSlotClick={(s) => {
-                  setSlot(s as any);
-                  setBookingOpen(true);
-                }}
-              />
-
-              <V3Constructor selected={extras} onToggle={toggleExtra} onClear={() => setExtras([])} />
-            </div>
-          </div>
-
-          <BookingModal open={bookingOpen} slot={slot as any} onClose={() => setBookingOpen(false)} />
-        </>
-      )}
+      <BookingModal open={bookingOpen} slot={slot as any} onClose={() => setBookingOpen(false)} />
     </div>
   );
 }

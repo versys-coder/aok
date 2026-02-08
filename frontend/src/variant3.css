@@ -1247,3 +1247,74 @@ body .ls-modal.ls-modal--top > .ls-modal__card{
   text-align: center;
   line-height: 1.05;
 }
+
+@media (max-width: 1100px){
+  .ls-root.is-v3{
+    --v3-timeColW: 120px;
+    --v3-colW: 160px;
+    --v3-tileH: 74px;
+  }
+
+  .ls-root.is-v3 .ls-topbar{
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .ls-root.is-v3 .ls-week{
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .ls-root.is-v3 .xls-wrap{
+    overflow-x: auto;
+  }
+
+  .ls-root.is-v3 .xls-sticky,
+  .ls-root.is-v3 .xls-body{
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 720px){
+  .ls-root.is-v3{
+    --v3-timeColW: 90px;
+    --v3-colW: 130px;
+    --v3-fontSize: 13px;
+    --v3-radius: 16px;
+    --v3-tileH: 64px;
+  }
+
+  .ls-root.is-v3 .ls-daypill{
+    padding: 6px 8px;
+    min-width: 64px;
+  }
+
+  .ls-root.is-v3 .ls-daypill-date{
+    font-size: 13px;
+  }
+
+  .ls-root.is-v3 .ls-daypill-weekday{
+    font-size: 10px;
+  }
+
+  .ls-root.is-v3 .xls-headcell__total{
+    font-size: 18px;
+  }
+
+  .ls-root.is-v3 .xls-time{
+    font-size: 12px;
+  }
+
+  .ls-root.is-v4 .xls-card .v4-split-num{
+    font-size: 22px !important;
+  }
+
+  .ls-root.is-v4 .xls-card .v4-split-plus{
+    font-size: 18px !important;
+  }
+
+  .ls-root.is-v3 .xls-row{
+    gap: 8px;
+  }
+}

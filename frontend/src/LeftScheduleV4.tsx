@@ -40,8 +40,9 @@ const p = (path: string) => `${BASE}${path.replace(/^\//, "")}`;
 const V3_BG_PHOTO_URL = p("img/schedule-bg.jpg");
 
 // ===== API =====
-const API_BASE = "https://profit-group.online/aok5/api";
-const CLUB_ID = "63fbc47b-d691-11ec-840b-00155d0a6605";
+const API_BASE = (import.meta as any).env?.VITE_API_BASE ?? "/aok5/api";
+const CLUB_ID = (import.meta as any).env?.VITE_CLUB_ID ?? "63fbc47b-d691-11ec-840b-00155d0a6605";
+const apiUrl = (path: string) => `${API_BASE.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 
 type EliteGridCell = { free: number; price: number | null; service_id?: string };
 type EliteAvailabilityGridResponse = {
@@ -215,7 +216,7 @@ export default function LeftScheduleV4({
       try {
         setEliteGridDate(dateIso);
         const url =
-          `${API_BASE}/availability_grid_elite` +
+          `${apiUrl("/availability_grid_elite")}` +
           `?club_id=${encodeURIComponent(CLUB_ID)}` +
           `&date=${encodeURIComponent(dateIso)}`;
         const r = await fetch(url, { method: "GET" });
@@ -243,7 +244,7 @@ export default function LeftScheduleV4({
       try {
         setComfortGridDate(dateIso);
         const url =
-          `${API_BASE}/availability_grid_comfort` +
+          `${apiUrl("/availability_grid_comfort")}` +
           `?club_id=${encodeURIComponent(CLUB_ID)}` +
           `&date=${encodeURIComponent(dateIso)}`;
         const r = await fetch(url, { method: "GET" });
@@ -263,7 +264,6 @@ export default function LeftScheduleV4({
 
   const eliteFreeForStart = (start: string) => (eliteGridDate !== dateIso ? 0 : eliteGrid[start]?.free ?? 0);
   const elitePriceForStart = (start: string) => (eliteGridDate !== dateIso ? null : eliteGrid[start]?.price ?? null);
-
   const comfortFreeForStart = (start: string) => (comfortGridDate !== dateIso ? 0 : comfortGrid[start]?.free_count ?? 0);
 
   // 7 дней
@@ -641,7 +641,8 @@ export default function LeftScheduleV4({
             <img src={tip.col.img} alt="" />
             <div style={{ fontWeight: 900 }}>{tip.col.title}</div>
             <div className="ls-tip-sub">
-              {formatRu(tip.dateIso)} • {rangeLabel(tip.start)} • свободно: {tip.freeText} • всего: {tip.col.totalLabel}
+              {formatRu(tip.dateIso)} • {rangeLabel(tip.start)} • свободно: {tip.freeText} • всего:{" "}
+              {tip.col.key === "comfort_elite" ? "8+1" : tip.col.totalLabel}
             </div>
           </div>,
           document.body
