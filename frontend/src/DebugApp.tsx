@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Slot } from "./LeftSchedule";
+import type { Slot } from "./LeftScheduleV4";
 import ExtrasPanel from "./ExtrasPanel";
 import ExtrasCart from "./ExtrasCart";
 import type { ExtraService } from "./services";
